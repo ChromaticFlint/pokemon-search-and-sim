@@ -34,15 +34,17 @@ const PokemonBattleCard = ({ pokemon, setPokemon, searching, setSearching, label
 
     <div className="form-group">
       <label className="form-label">Level</label>
-      <input
-        type="number"
+      <select
         className="form-input"
-        placeholder="50"
-        min="1"
-        max="100"
         value={pokemon.level}
-        onChange={(e) => setPokemon(prev => ({ ...prev, level: parseInt(e.target.value) || 50 }))}
-      />
+        onChange={(e) => setPokemon(prev => ({ ...prev, level: parseInt(e.target.value) }))}
+        style={{ padding: '8px 12px', borderRadius: '4px', border: '1px solid #ddd' }}
+      >
+        {[...Array(20)].map((_, i) => {
+          const level = (i + 1) * 5;
+          return <option key={level} value={level}>{level}</option>;
+        })}
+      </select>
     </div>
 
     <div className="form-group">
@@ -124,6 +126,25 @@ function Battle() {
   const [searchingA, setSearchingA] = useState(false);
   const [searchingB, setSearchingB] = useState(false);
 
+  // Helper function to calculate level-adjusted stats
+  const calculateLevelStats = (baseStats, level) => {
+    const stats = [];
+    const statKeys = ['hp', 'attack', 'defense', 'special_attack', 'special_defense', 'speed'];
+
+    statKeys.forEach((key) => {
+      const baseStat = baseStats[key];
+      if (key === 'hp') {
+        // HP formula: ((2 * base + 31) * level / 100) + level + 10
+        stats.push(Math.floor(((2 * baseStat + 31) * level / 100) + level + 10));
+      } else {
+        // Other stats: ((2 * base + 31) * level / 100) + 5
+        stats.push(Math.floor(((2 * baseStat + 31) * level / 100) + 5));
+      }
+    });
+
+    return stats;
+  };
+
 
 
   const handleBattle = async () => {
@@ -194,15 +215,10 @@ function Battle() {
     }
   };
 
-  const copyStatsToClipboard = async (pokemon) => {
-    const stats = [
-      pokemon.metadata.stats.hp,
-      pokemon.metadata.stats.attack,
-      pokemon.metadata.stats.defense,
-      pokemon.metadata.stats.special_attack,
-      pokemon.metadata.stats.special_defense,
-      pokemon.metadata.stats.speed
-    ].join(',');
+  const copyStatsToClipboard = async (pokemon, level = 50) => {
+    // Use level-adjusted stats
+    const levelStats = calculateLevelStats(pokemon.metadata.stats, level);
+    const stats = levelStats.join(',');
 
     try {
       await navigator.clipboard.writeText(stats);

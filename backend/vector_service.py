@@ -110,7 +110,18 @@ def get_all_pokemon(limit=1000):
 
 def calculate_pokemon_power_score(pokemon):
     """Calculate a weighted power score for a Pokemon"""
+    # Check if Pokemon has proper stats structure
+    if 'metadata' not in pokemon or 'stats' not in pokemon['metadata']:
+        return 0.0  # Return 0 for Pokemon without proper stats
+
     stats = pokemon['metadata']['stats']
+
+    # Check if all required stat keys exist
+    required_stats = ['hp', 'attack', 'defense', 'special_attack', 'special_defense', 'speed']
+    for stat_key in required_stats:
+        if stat_key not in stats:
+            return 0.0  # Return 0 for Pokemon with incomplete stats
+
     # Weight offensive stats higher as they're generally more valuable
     stat_weights = {
         'hp': 1.0,
@@ -138,7 +149,16 @@ def get_top_pokemon(criteria='power', limit=10):
     pokemon_with_scores = []
 
     for pokemon in all_pokemon:
+        # Skip Pokemon without proper stats structure
+        if 'metadata' not in pokemon or 'stats' not in pokemon['metadata']:
+            continue
+
         stats = pokemon['metadata']['stats']
+
+        # Check if all required stat keys exist
+        required_stats = ['hp', 'attack', 'defense', 'special_attack', 'special_defense', 'speed']
+        if not all(stat_key in stats for stat_key in required_stats):
+            continue
 
         if criteria == 'power':
             score = calculate_pokemon_power_score(pokemon)

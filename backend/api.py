@@ -1,9 +1,14 @@
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import FastAPI, HTTPException, Request, Response, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from vector_service import search_similar, add_pokemon, search_pokemon_by_name, get_all_pokemon, get_top_pokemon, search_moves, get_move_details
 from battle_service import simulate_battle, simulate_battle_advanced
 from security_fixes import SecurityValidator, RateLimiter, get_security_headers
 import logging
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -11,6 +16,32 @@ logger = logging.getLogger(__name__)
 
 # Initialize rate limiter
 rate_limiter = RateLimiter()
+
+# Get API key from environment
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
+
+# API Key Authentication for write operations
+async def verify_api_key(x_api_key: str = Header(None)):
+    """
+    Verify API key for write operations (create, update, delete)
+    Requires the same API key used for Qdrant database access
+    """
+    if not x_api_key:
+        logger.warning("API key missing for write operation")
+        raise HTTPException(
+            status_code=401,
+            detail="API key required for write operations. Include 'X-API-Key' header."
+        )
+
+    if x_api_key != QDRANT_API_KEY:
+        logger.warning(f"Invalid API key attempted for write operation")
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid API key. Access denied."
+        )
+
+    logger.info("API key verified for write operation")
+    return True
 
 app = FastAPI(
     title="Pokemon Search and Sim API",
@@ -24,7 +55,7 @@ app.add_middleware(
     allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Specific frontend URLs only
     allow_credentials=False,  # Disable credentials for security
     allow_methods=["GET", "POST"],  # Only allow necessary methods
-    allow_headers=["Content-Type", "Accept"],  # Restrict headers
+    allow_headers=["Content-Type", "Accept", "X-API-Key", "X-Requested-With"],  # Include all required headers
 )
 
 # Security middleware
@@ -48,19 +79,33 @@ async def security_middleware(request: Request, call_next):
     return response
 
 @app.post("/add_pokemon/")
-def add_pokemon_endpoint(id: int, name: str, stats: str):
-    """Add a new Pokemon with input validation"""
+def add_pokemon_endpoint(
+    id: int,
+    name: str,
+    stats: str,
+    authenticated: bool = Depends(verify_api_key)
+):
+    """
+    Add a new Pokemon with input validation and API key authentication
+
+    Requires X-API-Key header with valid API key for database write access.
+    This protects the Pokemon database from unauthorized modifications.
+    """
     try:
         # Validate inputs
         validated_id = SecurityValidator.validate_pokemon_id(id)
         validated_name = SecurityValidator.validate_pokemon_name(name)
         validated_stats = SecurityValidator.validate_stats_string(stats)
 
-        # Add Pokemon
+        # Add Pokemon (only if authenticated)
         add_pokemon(validated_id, validated_name, validated_stats)
 
-        logger.info(f"Added Pokemon: {validated_name} (ID: {validated_id})")
-        return {"status": "added", "pokemon": validated_name}
+        logger.info(f"Authenticated user added Pokemon: {validated_name} (ID: {validated_id})")
+        return {
+            "status": "added",
+            "pokemon": validated_name,
+            "message": "Pokemon successfully added to database"
+        }
 
     except HTTPException:
         raise

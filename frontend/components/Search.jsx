@@ -70,15 +70,39 @@ function Search() {
     }
   };
 
+  // Helper function to calculate level-adjusted stats
+  const calculateLevelStats = (baseStats, level) => {
+    const stats = [];
+    const statKeys = ['hp', 'attack', 'defense', 'special_attack', 'special_defense', 'speed'];
+
+    statKeys.forEach((key, index) => {
+      const baseStat = baseStats[key];
+      if (key === 'hp') {
+        // HP formula: ((2 * base + 31) * level / 100) + level + 10
+        stats.push(Math.floor(((2 * baseStat + 31) * level / 100) + level + 10));
+      } else {
+        // Other stats: ((2 * base + 31) * level / 100) + 5
+        stats.push(Math.floor(((2 * baseStat + 31) * level / 100) + 5));
+      }
+    });
+
+    return stats;
+  };
+
   const copyStatsToClipboard = async (pokemon) => {
-    const stats = [
-      pokemon.metadata.stats.hp,
-      pokemon.metadata.stats.attack,
-      pokemon.metadata.stats.defense,
-      pokemon.metadata.stats.special_attack,
-      pokemon.metadata.stats.special_defense,
-      pokemon.metadata.stats.speed
-    ].join(',');
+    // Use level-adjusted stats if in radar mode, otherwise use base stats
+    const statsToUse = viewMode === 'radar' ?
+      calculateLevelStats(pokemon.metadata.stats, selectedLevel) :
+      [
+        pokemon.metadata.stats.hp,
+        pokemon.metadata.stats.attack,
+        pokemon.metadata.stats.defense,
+        pokemon.metadata.stats.special_attack,
+        pokemon.metadata.stats.special_defense,
+        pokemon.metadata.stats.speed
+      ];
+
+    const stats = statsToUse.join(',');
 
     try {
       await navigator.clipboard.writeText(stats);
@@ -227,11 +251,10 @@ function Search() {
                       onChange={(e) => setSelectedLevel(parseInt(e.target.value))}
                       style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ddd' }}
                     >
-                      <option value={1}>1</option>
-                      <option value={25}>25</option>
-                      <option value={50}>50</option>
-                      <option value={75}>75</option>
-                      <option value={100}>100</option>
+                      {[...Array(20)].map((_, i) => {
+                        const level = (i + 1) * 5;
+                        return <option key={level} value={level}>{level}</option>;
+                      })}
                     </select>
                   </div>
                 </div>
@@ -318,6 +341,27 @@ function Search() {
                   />
                 )}
 
+                {/* Level-adjusted stats display for radar mode */}
+                {viewMode === 'radar' && (
+                  <div className="level-stats-display">
+                    <h4 style={{ margin: '10px 0 5px 0', color: '#667eea', fontSize: '14px' }}>
+                      Level {selectedLevel} Stats:
+                    </h4>
+                    <div className="pokemon-stats" style={{ fontSize: '12px' }}>
+                      {(() => {
+                        const levelStats = calculateLevelStats(pokemon.metadata.stats, selectedLevel);
+                        const statNames = ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed'];
+                        return statNames.map((name, index) => (
+                          <div key={name} className="stat-item">
+                            <span className="stat-name">{name}:</span>
+                            <span className="stat-value">{levelStats[index]}</span>
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                  </div>
+                )}
+
                 <div style={{ marginTop: '15px', fontSize: '0.9rem', color: '#666' }}>
                   <div><strong>Height:</strong> {pokemon.metadata.height / 10}m</div>
                   <div><strong>Weight:</strong> {pokemon.metadata.weight / 10}kg</div>
@@ -325,14 +369,18 @@ function Search() {
                 </div>
 
                 <div className="stats-format">
-                  <strong>Stats Format:</strong> {[
-                    pokemon.metadata.stats.hp,
-                    pokemon.metadata.stats.attack,
-                    pokemon.metadata.stats.defense,
-                    pokemon.metadata.stats.special_attack,
-                    pokemon.metadata.stats.special_defense,
-                    pokemon.metadata.stats.speed
-                  ].join(',')}
+                  <strong>Stats{viewMode === 'radar' ? ` (Level ${selectedLevel})` : ' (Base)'}:</strong> {
+                    viewMode === 'radar' ?
+                      calculateLevelStats(pokemon.metadata.stats, selectedLevel).join(',') :
+                      [
+                        pokemon.metadata.stats.hp,
+                        pokemon.metadata.stats.attack,
+                        pokemon.metadata.stats.defense,
+                        pokemon.metadata.stats.special_attack,
+                        pokemon.metadata.stats.special_defense,
+                        pokemon.metadata.stats.speed
+                      ].join(',')
+                  }
                 </div>
 
                 <button

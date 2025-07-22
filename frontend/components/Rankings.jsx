@@ -46,15 +46,39 @@ function Rankings() {
     loadAllRankings();
   }, []);
 
+  // Helper function to calculate level-adjusted stats
+  const calculateLevelStats = (baseStats, level) => {
+    const stats = [];
+    const statKeys = ['hp', 'attack', 'defense', 'special_attack', 'special_defense', 'speed'];
+
+    statKeys.forEach((key) => {
+      const baseStat = baseStats[key];
+      if (key === 'hp') {
+        // HP formula: ((2 * base + 31) * level / 100) + level + 10
+        stats.push(Math.floor(((2 * baseStat + 31) * level / 100) + level + 10));
+      } else {
+        // Other stats: ((2 * base + 31) * level / 100) + 5
+        stats.push(Math.floor(((2 * baseStat + 31) * level / 100) + 5));
+      }
+    });
+
+    return stats;
+  };
+
   const copyStatsToClipboard = async (pokemon) => {
-    const stats = [
-      pokemon.metadata.stats.hp,
-      pokemon.metadata.stats.attack,
-      pokemon.metadata.stats.defense,
-      pokemon.metadata.stats.special_attack,
-      pokemon.metadata.stats.special_defense,
-      pokemon.metadata.stats.speed
-    ].join(',');
+    // Use level-adjusted stats if in radar mode, otherwise use base stats
+    const statsToUse = viewMode === 'radar' ?
+      calculateLevelStats(pokemon.metadata.stats, selectedLevel) :
+      [
+        pokemon.metadata.stats.hp,
+        pokemon.metadata.stats.attack,
+        pokemon.metadata.stats.defense,
+        pokemon.metadata.stats.special_attack,
+        pokemon.metadata.stats.special_defense,
+        pokemon.metadata.stats.speed
+      ];
+
+    const stats = statsToUse.join(',');
 
     try {
       await navigator.clipboard.writeText(stats);
@@ -170,11 +194,10 @@ function Rankings() {
                 onChange={(e) => setSelectedLevel(parseInt(e.target.value))}
                 style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ddd' }}
               >
-                <option value={1}>1</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={75}>75</option>
-                <option value={100}>100</option>
+                {[...Array(20)].map((_, i) => {
+                  const level = (i + 1) * 5;
+                  return <option key={level} value={level}>{level}</option>;
+                })}
               </select>
             </div>
           </div>
