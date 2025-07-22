@@ -34,14 +34,15 @@ function Search() {
     }
   };
 
-  const handleNameSearch = async () => {
-    if (!nameInput.trim()) return;
+  const handleNameSearch = async (searchName = null) => {
+    const searchTerm = searchName || nameInput;
+    if (!searchTerm.trim()) return;
 
     setLoading(true);
     try {
       // Direct API call for name search
       // This bypasses frontend validation while maintaining backend security
-      const response = await fetch(`http://localhost:8000/search_by_name/?name=${encodeURIComponent(nameInput)}&limit=10`);
+      const response = await fetch(`http://localhost:8000/search_by_name/?name=${encodeURIComponent(searchTerm)}&limit=10`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -167,6 +168,22 @@ function Search() {
           </label>
         </div>
 
+        <button
+          className="btn"
+          onClick={handleSearch}
+          disabled={loading || (!statsInput.trim() && !nameInput.trim())}
+          style={{ width: '100%', marginBottom: '20px' }}
+        >
+          {loading ? 'Searching...' : `🔍 Search ${searchType === 'name' ? 'by Name' : 'Similar Pokémon'}`}
+        </button>
+
+        <div style={{ textAlign: 'center', marginBottom: '15px', color: '#666', fontSize: '0.9rem' }}>
+          {searchType === 'name' ?
+            '👇 Type a Pokémon name below or select from suggestions' :
+            '👇 Enter comma-separated stats below'
+          }
+        </div>
+
         {searchType === 'name' ? (
           <div className="form-group">
             <label className="form-label">
@@ -178,8 +195,9 @@ function Search() {
               onChange={setNameInput}
               onSelect={(pokemon) => {
                 setNameInput(pokemon.name);
-                // Auto-search when Pokemon is selected
-                setTimeout(() => handleNameSearch(), 100);
+                // Auto-search when Pokemon is selected, passing the name directly
+                // This ensures we search for the selected Pokemon, not the partial input
+                handleNameSearch(pokemon.name);
               }}
             />
           </div>
@@ -201,15 +219,6 @@ function Search() {
             </small>
           </div>
         )}
-
-        <button
-          className="btn"
-          onClick={handleSearch}
-          disabled={loading || (!statsInput.trim() && !nameInput.trim())}
-          style={{ width: '100%' }}
-        >
-          {loading ? 'Searching...' : `🔍 Search ${searchType === 'name' ? 'by Name' : 'Similar Pokémon'}`}
-        </button>
       </div>
 
       {loading && (
