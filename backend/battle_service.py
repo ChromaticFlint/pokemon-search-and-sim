@@ -147,6 +147,25 @@ MOVE_DATABASE = {
     "earthquake": {"name": "Earthquake", "power": 100, "type": "ground", "category": "physical", "accuracy": 100, "effect": None, "effect_chance": 0, "crit_ratio": 1},
     "stone_edge": {"name": "Stone Edge", "power": 100, "type": "rock", "category": "physical", "accuracy": 80, "effect": None, "effect_chance": 0, "crit_ratio": 3},  # High crit ratio
     "shadow_ball": {"name": "Shadow Ball", "power": 80, "type": "ghost", "category": "special", "accuracy": 100, "effect": None, "effect_chance": 0, "crit_ratio": 1},
+
+    # High critical hit moves
+    "slash": {"name": "Slash", "power": 70, "type": "normal", "category": "physical", "accuracy": 100, "effect": None, "effect_chance": 0, "crit_ratio": 3},
+    "psycho_cut": {"name": "Psycho Cut", "power": 70, "type": "psychic", "category": "physical", "accuracy": 100, "effect": None, "effect_chance": 0, "crit_ratio": 3},
+    "night_slash": {"name": "Night Slash", "power": 70, "type": "dark", "category": "physical", "accuracy": 100, "effect": None, "effect_chance": 0, "crit_ratio": 3},
+    "leaf_blade": {"name": "Leaf Blade", "power": 90, "type": "grass", "category": "physical", "accuracy": 100, "effect": None, "effect_chance": 0, "crit_ratio": 3},
+
+    # Low accuracy moves
+    "focus_blast": {"name": "Focus Blast", "power": 120, "type": "fighting", "category": "special", "accuracy": 70, "effect": None, "effect_chance": 0, "crit_ratio": 1},
+    "dynamic_punch": {"name": "Dynamic Punch", "power": 100, "type": "fighting", "category": "physical", "accuracy": 50, "effect": "confusion", "effect_chance": 100, "crit_ratio": 1},
+    "zap_cannon": {"name": "Zap Cannon", "power": 120, "type": "electric", "category": "special", "accuracy": 50, "effect": "paralysis", "effect_chance": 100, "crit_ratio": 1},
+
+    # Status moves
+    "toxic": {"name": "Toxic", "power": None, "type": "poison", "category": "status", "accuracy": 90, "effect": "poison", "effect_chance": 100, "crit_ratio": 1},
+    "sleep_powder": {"name": "Sleep Powder", "power": None, "type": "grass", "category": "status", "accuracy": 75, "effect": "sleep", "effect_chance": 100, "crit_ratio": 1},
+    "thunder_wave": {"name": "Thunder Wave", "power": None, "type": "electric", "category": "status", "accuracy": 90, "effect": "paralysis", "effect_chance": 100, "crit_ratio": 1},
+
+    # Poison moves
+    "sludge_bomb": {"name": "Sludge Bomb", "power": 90, "type": "poison", "category": "special", "accuracy": 100, "effect": "poison", "effect_chance": 30, "crit_ratio": 1},
 }
 
 # Pokemon-specific movesets (4 moves each)

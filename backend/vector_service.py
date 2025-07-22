@@ -179,31 +179,77 @@ def search_moves(query, limit=20):
 
         for move_key, move_data in MOVE_DATABASE.items():
             score = 0
-            move_text = f"{move_data['name']} {move_data['type']} {move_data['category']}".lower()
+            max_possible_score = 10  # For better normalization
 
-            # Simple keyword matching
+            # Create comprehensive move text for matching
+            move_text = f"{move_data['name']} {move_data['type']} {move_data['category']}".lower()
+            if move_data.get('effect'):
+                move_text += f" {move_data['effect']}"
+
+            # Keyword matching with different weights
             query_words = query_lower.split()
             for word in query_words:
-                if word in move_text:
-                    score += 1
+                # Exact name matches (highest priority)
                 if word in move_data['name'].lower():
-                    score += 2  # Higher score for name matches
+                    score += 3
+                # Type matches
+                elif word == move_data['type']:
+                    score += 2
+                # Category matches
+                elif word == move_data['category']:
+                    score += 2
+                # Effect matches
+                elif move_data.get('effect') and word in move_data['effect']:
+                    score += 2
+                # General text matches
+                elif word in move_text:
+                    score += 1
 
-            # Add power-based matching
-            if 'powerful' in query_lower or 'strong' in query_lower or 'high damage' in query_lower:
-                if move_data['power'] and move_data['power'] >= 100:
+            # Power-based matching (more specific)
+            if any(word in query_lower for word in ['powerful', 'strong', 'high damage', 'devastating']):
+                if move_data['power'] and move_data['power'] >= 120:
+                    score += 4
+                elif move_data['power'] and move_data['power'] >= 100:
+                    score += 3
+                elif move_data['power'] and move_data['power'] >= 80:
+                    score += 1
+
+            # Critical hit matching
+            if any(word in query_lower for word in ['critical', 'crit', 'high crit']):
+                if move_data.get('crit_ratio', 1) > 1:
+                    score += 4  # High score for actual high-crit moves
+
+            # Accuracy matching (fixed logic)
+            if any(word in query_lower for word in ['accurate', 'reliable', 'sure hit']):
+                if move_data['accuracy'] >= 95:
+                    score += 2
+            if any(word in query_lower for word in ['miss', 'unreliable', 'low accuracy', 'inaccurate']):
+                if move_data['accuracy'] <= 80:
                     score += 3
 
-            # Add status effect matching
-            if move_data.get('effect'):
-                if move_data['effect'] in query_lower:
-                    score += 2
+            # Status effect matching (more comprehensive)
+            status_keywords = {
+                'paralysis': ['paralysis', 'paralyze', 'thunder wave'],
+                'burn': ['burn', 'fire'],
+                'freeze': ['freeze', 'ice'],
+                'poison': ['poison', 'toxic'],
+                'sleep': ['sleep'],
+                'confusion': ['confusion', 'confuse'],
+                'flinch': ['flinch']
+            }
 
-            # Add accuracy matching
-            if 'accurate' in query_lower and move_data['accuracy'] >= 95:
-                score += 1
-            if 'miss' in query_lower or 'unreliable' in query_lower and move_data['accuracy'] < 90:
-                score += 1
+            for effect, keywords in status_keywords.items():
+                if any(keyword in query_lower for keyword in keywords):
+                    if move_data.get('effect') == effect:
+                        score += 3
+
+            # Category-specific matching
+            if 'physical' in query_lower and move_data['category'] == 'physical':
+                score += 2
+            if any(word in query_lower for word in ['special', 'ranged', 'projectile']) and move_data['category'] == 'special':
+                score += 2
+            if 'status' in query_lower and move_data['category'] == 'status':
+                score += 2
 
             if score > 0:
                 matching_moves.append({
@@ -213,8 +259,13 @@ def search_moves(query, limit=20):
                     'power': move_data['power'],
                     'accuracy': move_data['accuracy'],
                     'effect': move_data.get('effect'),
-                    'similarity': min(score / 5.0, 1.0),  # Normalize to 0-1
-                    'description': f"A {move_data['category']} {move_data['type']}-type move with {move_data['power'] or 'variable'} power."
+                    'crit_ratio': move_data.get('crit_ratio', 1),
+                    'similarity': min(score / max_possible_score, 1.0),  # Better normalization
+                    'description': f"A {move_data['category']} {move_data['type']}-type move" +
+                                 (f" with {move_data['power']} power" if move_data['power'] else "") +
+                                 (f" and {move_data['accuracy']}% accuracy" if move_data['accuracy'] else "") +
+                                 (f". Has a chance to cause {move_data['effect']}" if move_data.get('effect') else "") +
+                                 (f". High critical hit ratio" if move_data.get('crit_ratio', 1) > 1 else "") + "."
                 })
 
         # Sort by similarity score and limit results

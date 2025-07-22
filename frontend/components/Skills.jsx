@@ -9,14 +9,16 @@ function Skills() {
 
   // Sample move categories for quick search
   const moveCategories = [
-    { name: 'High Power', query: 'powerful devastating strong high damage' },
-    { name: 'Status Effects', query: 'paralysis burn freeze sleep poison' },
-    { name: 'Critical Hits', query: 'critical hit high crit ratio' },
-    { name: 'Accuracy Issues', query: 'low accuracy miss unreliable' },
-    { name: 'Type Coverage', query: 'super effective coverage weakness' },
-    { name: 'Physical Attacks', query: 'physical attack melee contact' },
-    { name: 'Special Attacks', query: 'special attack ranged projectile' },
-    { name: 'Defensive Moves', query: 'protect defend shield barrier' }
+    { name: '💥 High Power', query: 'powerful devastating strong high damage' },
+    { name: '🌟 Status Effects', query: 'paralysis burn freeze sleep poison toxic' },
+    { name: '⚡ Critical Hits', query: 'critical hit high crit' },
+    { name: '🎯 Low Accuracy', query: 'low accuracy miss unreliable inaccurate' },
+    { name: '🔥 Fire Moves', query: 'fire flamethrower burn' },
+    { name: '💧 Water Moves', query: 'water hydro surf aqua' },
+    { name: '⚡ Electric Moves', query: 'electric thunder thunderbolt' },
+    { name: '🥊 Physical Attacks', query: 'physical attack melee contact' },
+    { name: '🔮 Special Attacks', query: 'special attack ranged projectile' },
+    { name: '🛡️ Status Moves', query: 'status toxic sleep powder thunder wave' }
   ];
 
   const searchMoves = async (query) => {
@@ -151,12 +153,15 @@ function Skills() {
                       <span className="stat-label">Category:</span>
                       <span className="stat-value">{move.category}</span>
                     </div>
+                    <div className="stat">
+                      <span className="stat-label">Crit Ratio:</span>
+                      <span className={`stat-value ${move.crit_ratio > 1 ? 'high-crit' : ''}`}>
+                        {move.crit_ratio > 1 ? `⚡ ${move.crit_ratio}x` : 'Normal'}
+                      </span>
+                    </div>
                   </div>
                   <div className="move-description">
                     {move.description || 'Click for more details...'}
-                  </div>
-                  <div className="similarity-score">
-                    Relevance: {(move.similarity * 100).toFixed(1)}%
                   </div>
                 </div>
               ))}

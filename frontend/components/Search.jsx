@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PokemonAutocomplete from './PokemonAutocomplete';
+import PokemonRadarChart from './PokemonRadarChart';
 
 function Search() {
   const [searchType, setSearchType] = useState('name');
@@ -7,6 +8,9 @@ function Search() {
   const [nameInput, setNameInput] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'radar'
+  const [selectedLevel, setSelectedLevel] = useState(50);
+  const [radarMode, setRadarMode] = useState('comparison'); // 'comparison', 'growth', 'level-only'
 
   const handleStatsSearch = async () => {
     if (!statsInput.trim()) return;
@@ -190,9 +194,64 @@ function Search() {
 
       {results.length > 0 && (
         <div className="search-results">
-          <h3 style={{ marginBottom: '20px', color: '#667eea' }}>
-            {searchType === 'name' ? 'Search Results:' : 'Similar Pokémon Found:'} ({results.length})
-          </h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h3 style={{ margin: 0, color: '#667eea' }}>
+              {searchType === 'name' ? 'Search Results:' : 'Similar Pokémon Found:'} ({results.length})
+            </h3>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              {/* Radar chart controls */}
+              {viewMode === 'radar' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                  {/* Radar mode selector */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <label style={{ fontSize: '14px', color: '#666' }}>Mode:</label>
+                    <select
+                      value={radarMode}
+                      onChange={(e) => setRadarMode(e.target.value)}
+                      style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '12px' }}
+                    >
+                      <option value="comparison">Base vs Level</option>
+                      <option value="growth">Base + Growth</option>
+                      <option value="level-only">Level Only</option>
+                    </select>
+                  </div>
+
+                  {/* Level selector */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <label style={{ fontSize: '14px', color: '#666' }}>Level:</label>
+                    <select
+                      value={selectedLevel}
+                      onChange={(e) => setSelectedLevel(parseInt(e.target.value))}
+                      style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                    >
+                      <option value={1}>1</option>
+                      <option value={25}>25</option>
+                      <option value={50}>50</option>
+                      <option value={75}>75</option>
+                      <option value={100}>100</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* View mode toggle */}
+              <div className="pokemon-stats-toggle">
+                <button
+                  className={`stats-toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
+                  onClick={() => setViewMode('list')}
+                >
+                  📊 List View
+                </button>
+                <button
+                  className={`stats-toggle-btn ${viewMode === 'radar' ? 'active' : ''}`}
+                  onClick={() => setViewMode('radar')}
+                >
+                  🎯 Radar View
+                </button>
+              </div>
+            </div>
+          </div>
 
           <div className="pokemon-grid">
             {results.map((pokemon, idx) => (
@@ -220,32 +279,42 @@ function Search() {
                   ))}
                 </div>
 
-                <div className="pokemon-stats">
-                  <div className="stat-item">
-                    <span className="stat-name">HP:</span>
-                    <span className="stat-value">{pokemon.metadata.stats.hp}</span>
+                {/* Conditional rendering based on view mode */}
+                {viewMode === 'list' ? (
+                  <div className="pokemon-stats">
+                    <div className="stat-item">
+                      <span className="stat-name">HP:</span>
+                      <span className="stat-value">{pokemon.metadata.stats.hp}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-name">Attack:</span>
+                      <span className="stat-value">{pokemon.metadata.stats.attack}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-name">Defense:</span>
+                      <span className="stat-value">{pokemon.metadata.stats.defense}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-name">Sp. Atk:</span>
+                      <span className="stat-value">{pokemon.metadata.stats.special_attack}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-name">Sp. Def:</span>
+                      <span className="stat-value">{pokemon.metadata.stats.special_defense}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-name">Speed:</span>
+                      <span className="stat-value">{pokemon.metadata.stats.speed}</span>
+                    </div>
                   </div>
-                  <div className="stat-item">
-                    <span className="stat-name">Attack:</span>
-                    <span className="stat-value">{pokemon.metadata.stats.attack}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-name">Defense:</span>
-                    <span className="stat-value">{pokemon.metadata.stats.defense}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-name">Sp. Atk:</span>
-                    <span className="stat-value">{pokemon.metadata.stats.special_attack}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-name">Sp. Def:</span>
-                    <span className="stat-value">{pokemon.metadata.stats.special_defense}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-name">Speed:</span>
-                    <span className="stat-value">{pokemon.metadata.stats.speed}</span>
-                  </div>
-                </div>
+                ) : (
+                  <PokemonRadarChart
+                    stats={pokemon.metadata.stats}
+                    level={selectedLevel}
+                    size={180}
+                    mode={radarMode}
+                  />
+                )}
 
                 <div style={{ marginTop: '15px', fontSize: '0.9rem', color: '#666' }}>
                   <div><strong>Height:</strong> {pokemon.metadata.height / 10}m</div>

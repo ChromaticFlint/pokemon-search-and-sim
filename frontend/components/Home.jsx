@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PokemonRadarChart from './PokemonRadarChart';
 
 function Home() {
   const [featuredPokemon, setFeaturedPokemon] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'radar'
+  const [selectedLevel, setSelectedLevel] = useState(50);
+  const [radarMode, setRadarMode] = useState('comparison'); // 'comparison', 'growth', 'level-only'
   const navigate = useNavigate();
 
   useEffect(() => {
