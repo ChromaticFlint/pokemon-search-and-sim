@@ -117,7 +117,9 @@ function Search() {
 
   return (
     <div>
-      <h2>🔍 Search Pokémon</h2>
+      <div className="page-title-container">
+        <h2 className="page-title">🔍 Search Pokémon</h2>
+      </div>
 
       <div style={{ marginBottom: '30px' }}>
         <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', marginBottom: '20px' }}>

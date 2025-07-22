@@ -81,7 +81,9 @@ function Rankings() {
 
   return (
     <div>
-      <h2>📈 Pokémon Rankings</h2>
+      <div className="page-title-container">
+        <h2 className="page-title">📈 Pokémon Rankings</h2>
+      </div>
       
       <p style={{ textAlign: 'center', color: '#666', marginBottom: '40px', fontSize: '1.1rem' }}>
         Discover the strongest Pokémon across different categories based on their base stats!

@@ -5,9 +5,6 @@ import PokemonRadarChart from './PokemonRadarChart';
 function Home() {
   const [featuredPokemon, setFeaturedPokemon] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'radar'
-  const [selectedLevel, setSelectedLevel] = useState(50);
-  const [radarMode, setRadarMode] = useState('comparison'); // 'comparison', 'growth', 'level-only'
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -79,7 +76,9 @@ function Home() {
 
   return (
     <div>
-      <h1>🌟 Pokémon Search & Battle Arena</h1>
+      <div className="page-title-container">
+        <h1 className="page-title">🌟 Pokémon Search & Battle Arena</h1>
+      </div>
 
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>
         <p style={{ fontSize: '1.2rem', color: '#666', lineHeight: '1.6' }}>
@@ -185,32 +184,13 @@ function Home() {
                 ))}
               </div>
 
-              <div className="pokemon-stats">
-                <div className="stat-item">
-                  <span className="stat-name">HP:</span>
-                  <span className="stat-value">{pokemon.metadata.stats.hp}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-name">Attack:</span>
-                  <span className="stat-value">{pokemon.metadata.stats.attack}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-name">Defense:</span>
-                  <span className="stat-value">{pokemon.metadata.stats.defense}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-name">Sp. Atk:</span>
-                  <span className="stat-value">{pokemon.metadata.stats.special_attack}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-name">Sp. Def:</span>
-                  <span className="stat-value">{pokemon.metadata.stats.special_defense}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-name">Speed:</span>
-                  <span className="stat-value">{pokemon.metadata.stats.speed}</span>
-                </div>
-              </div>
+              {/* Radar chart showing base vs level 50 stats */}
+              <PokemonRadarChart
+                stats={pokemon.metadata.stats}
+                level={50}
+                size={200}
+                mode="comparison"
+              />
 
               <div className="stats-format">
                 <strong>Stats:</strong> {[

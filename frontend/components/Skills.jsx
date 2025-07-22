@@ -75,7 +75,9 @@ function Skills() {
 
   return (
     <div>
-      <h1>🎯 Pokemon Skills & Moves</h1>
+      <div className="page-title-container">
+        <h1 className="page-title">🎯 Pokemon Skills & Moves</h1>
+      </div>
 
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>
         <p style={{ fontSize: '1.2rem', color: '#666', lineHeight: '1.6' }}>

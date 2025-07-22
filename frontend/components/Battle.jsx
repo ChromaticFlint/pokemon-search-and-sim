@@ -243,7 +243,9 @@ function Battle() {
 
   return (
     <div>
-      <h2>⚔️ Battle Simulator</h2>
+      <div className="page-title-container">
+        <h2 className="page-title">⚔️ Battle Simulator</h2>
+      </div>
 
       <p style={{ textAlign: 'center', color: '#666', marginBottom: '20px', fontSize: '1.1rem' }}>
         Choose two Pokémon and simulate an epic battle!
