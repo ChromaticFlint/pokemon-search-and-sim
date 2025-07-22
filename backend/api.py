@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from vector_service import search_similar, add_pokemon, search_pokemon_by_name, get_all_pokemon, get_top_pokemon
+from vector_service import search_similar, add_pokemon, search_pokemon_by_name, get_all_pokemon, get_top_pokemon, search_moves, get_move_details
 from battle_service import simulate_battle, simulate_battle_advanced
 from security_fixes import SecurityValidator, RateLimiter, get_security_headers
 import logging
@@ -106,12 +106,16 @@ def battle_endpoint(stats_a: str, stats_b: str):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/battle_advanced/")
-def advanced_battle_endpoint(pokemon_a_name: str, pokemon_b_name: str):
-    """Advanced battle simulation with type effectiveness and input validation"""
+def advanced_battle_endpoint(pokemon_a_name: str, pokemon_b_name: str, level_a: int = 50, level_b: int = 50):
+    """Enhanced battle simulation with movesets, status effects, and levels"""
     try:
         # Validate Pokemon names
         validated_name_a = SecurityValidator.validate_pokemon_name(pokemon_a_name)
         validated_name_b = SecurityValidator.validate_pokemon_name(pokemon_b_name)
+
+        # Validate levels (1-100)
+        if not (1 <= level_a <= 100) or not (1 <= level_b <= 100):
+            raise HTTPException(status_code=400, detail="Pokemon levels must be between 1 and 100")
 
         # Get Pokemon data
         pokemon_a_results = search_pokemon_by_name(validated_name_a, 1)
@@ -125,8 +129,8 @@ def advanced_battle_endpoint(pokemon_a_name: str, pokemon_b_name: str):
         pokemon_a = pokemon_a_results[0]
         pokemon_b = pokemon_b_results[0]
 
-        # Simulate advanced battle
-        battle_result = simulate_battle_advanced(pokemon_a, pokemon_b)
+        # Simulate enhanced battle
+        battle_result = simulate_battle_advanced(pokemon_a, pokemon_b, level_a, level_b)
 
         return {
             "pokemon_a": pokemon_a['name'],
@@ -201,4 +205,49 @@ def get_top_pokemon_endpoint(criteria: str = "power", limit: int = 10):
         raise
     except Exception as e:
         logger.error(f"Error getting top Pokemon: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/search_moves/")
+def search_moves_endpoint(query: str, limit: int = 20):
+    """Search for Pokemon moves using vector similarity"""
+    try:
+        # Validate query
+        validated_query = SecurityValidator.validate_search_query(query)
+
+        # Validate limit
+        if not (1 <= limit <= 100):
+            raise HTTPException(status_code=400, detail="Limit must be between 1 and 100")
+
+        # Search for moves
+        results = search_moves(validated_query, limit)
+
+        return {
+            "query": validated_query,
+            "results": results,
+            "count": len(results)
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in move search: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/move_details/")
+def move_details_endpoint(name: str):
+    """Get detailed information about a specific move"""
+    try:
+        # Validate move name
+        validated_name = SecurityValidator.validate_pokemon_name(name)  # Reuse Pokemon name validation
+
+        # Get move details
+        move_details = get_move_details(validated_name)
+
+        if not move_details:
+            raise HTTPException(status_code=404, detail=f"Move '{validated_name}' not found")
+
+        return move_details
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting move details: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")

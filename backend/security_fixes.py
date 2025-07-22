@@ -160,7 +160,30 @@ class SecurityValidator:
             )
         
         return criteria
-    
+
+    @staticmethod
+    def validate_search_query(query: str) -> str:
+        """Validate search query for moves"""
+        if not query or not isinstance(query, str):
+            raise HTTPException(status_code=400, detail="Search query is required and must be a string")
+
+        # Strip whitespace
+        query = query.strip()
+
+        # Check minimum length
+        if len(query) < 2:
+            raise HTTPException(status_code=400, detail="Search query must be at least 2 characters long")
+
+        # Check maximum length
+        if len(query) > 200:
+            raise HTTPException(status_code=400, detail="Search query must be less than 200 characters")
+
+        # Allow letters, numbers, spaces, and common punctuation
+        if not re.match(r"^[a-zA-Z0-9\s\-'\.!?]+$", query):
+            raise HTTPException(status_code=400, detail="Search query contains invalid characters")
+
+        return query
+
     @staticmethod
     def sanitize_error_message(message: str) -> str:
         """Sanitize error messages to prevent information disclosure"""

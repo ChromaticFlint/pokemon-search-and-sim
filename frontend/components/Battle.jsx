@@ -33,6 +33,19 @@ const PokemonBattleCard = ({ pokemon, setPokemon, searching, setSearching, label
     </div>
 
     <div className="form-group">
+      <label className="form-label">Level</label>
+      <input
+        type="number"
+        className="form-input"
+        placeholder="50"
+        min="1"
+        max="100"
+        value={pokemon.level}
+        onChange={(e) => setPokemon(prev => ({ ...prev, level: parseInt(e.target.value) || 50 }))}
+      />
+    </div>
+
+    <div className="form-group">
       <label className="form-label">Or Enter Stats Manually</label>
       <input
         type="text"
@@ -102,8 +115,8 @@ const PokemonBattleCard = ({ pokemon, setPokemon, searching, setSearching, label
 );
 
 function Battle() {
-  const [pokemonA, setPokemonA] = useState({ name: '', stats: '', data: null });
-  const [pokemonB, setPokemonB] = useState({ name: '', stats: '', data: null });
+  const [pokemonA, setPokemonA] = useState({ name: '', stats: '', level: 50, data: null });
+  const [pokemonB, setPokemonB] = useState({ name: '', stats: '', level: 50, data: null });
   const [result, setResult] = useState('');
   const [battleLog, setBattleLog] = useState([]);
   const [battleMode, setBattleMode] = useState('simple'); // 'simple' or 'advanced'
@@ -123,8 +136,10 @@ function Battle() {
 
       setLoading(true);
       try {
-        // Direct API call for advanced battle
-        const response = await fetch(`http://localhost:8000/battle_advanced/?pokemon_a_name=${encodeURIComponent(pokemonA.data.name)}&pokemon_b_name=${encodeURIComponent(pokemonB.data.name)}`);
+        // Direct API call for enhanced battle with levels
+        const levelA = pokemonA.level && !isNaN(pokemonA.level) ? pokemonA.level : 50;
+        const levelB = pokemonB.level && !isNaN(pokemonB.level) ? pokemonB.level : 50;
+        const response = await fetch(`http://localhost:8000/battle_advanced/?pokemon_a_name=${encodeURIComponent(pokemonA.data.name)}&pokemon_b_name=${encodeURIComponent(pokemonB.data.name)}&level_a=${levelA}&level_b=${levelB}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

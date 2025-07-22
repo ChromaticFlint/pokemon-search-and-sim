@@ -164,3 +164,106 @@ def get_top_pokemon(criteria='power', limit=10):
     pokemon_with_scores.sort(key=lambda x: x['ranking_score'], reverse=True)
 
     return pokemon_with_scores[:limit]
+
+def search_moves(query, limit=20):
+    """Search for Pokemon moves using vector similarity"""
+    try:
+        # For now, return mock data since we haven't populated move data yet
+        # This will be replaced with actual vector search once we populate the database
+
+        from battle_service import MOVE_DATABASE
+
+        # Simple text matching for now - will be replaced with vector search
+        query_lower = query.lower()
+        matching_moves = []
+
+        for move_key, move_data in MOVE_DATABASE.items():
+            score = 0
+            move_text = f"{move_data['name']} {move_data['type']} {move_data['category']}".lower()
+
+            # Simple keyword matching
+            query_words = query_lower.split()
+            for word in query_words:
+                if word in move_text:
+                    score += 1
+                if word in move_data['name'].lower():
+                    score += 2  # Higher score for name matches
+
+            # Add power-based matching
+            if 'powerful' in query_lower or 'strong' in query_lower or 'high damage' in query_lower:
+                if move_data['power'] and move_data['power'] >= 100:
+                    score += 3
+
+            # Add status effect matching
+            if move_data.get('effect'):
+                if move_data['effect'] in query_lower:
+                    score += 2
+
+            # Add accuracy matching
+            if 'accurate' in query_lower and move_data['accuracy'] >= 95:
+                score += 1
+            if 'miss' in query_lower or 'unreliable' in query_lower and move_data['accuracy'] < 90:
+                score += 1
+
+            if score > 0:
+                matching_moves.append({
+                    'name': move_data['name'],
+                    'type': move_data['type'],
+                    'category': move_data['category'],
+                    'power': move_data['power'],
+                    'accuracy': move_data['accuracy'],
+                    'effect': move_data.get('effect'),
+                    'similarity': min(score / 5.0, 1.0),  # Normalize to 0-1
+                    'description': f"A {move_data['category']} {move_data['type']}-type move with {move_data['power'] or 'variable'} power."
+                })
+
+        # Sort by similarity score and limit results
+        matching_moves.sort(key=lambda x: x['similarity'], reverse=True)
+        return matching_moves[:limit]
+
+    except Exception as e:
+        print(f"Error searching moves: {e}")
+        return []
+
+def get_move_details(move_name):
+    """Get detailed information about a specific move"""
+    try:
+        from battle_service import MOVE_DATABASE
+
+        # Find move in database (case-insensitive)
+        move_key = None
+        for key, move_data in MOVE_DATABASE.items():
+            if move_data['name'].lower() == move_name.lower():
+                move_key = key
+                break
+
+        if not move_key:
+            return None
+
+        move_data = MOVE_DATABASE[move_key]
+
+        # Get Pokemon that can learn this move (mock data for now)
+        learners = [
+            {'name': 'Pikachu', 'sprite_url': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png'},
+            {'name': 'Raichu', 'sprite_url': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/26.png'},
+            {'name': 'Magnezone', 'sprite_url': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/462.png'}
+        ]
+
+        return {
+            'name': move_data['name'],
+            'type': move_data['type'],
+            'category': move_data['category'],
+            'power': move_data['power'],
+            'accuracy': move_data['accuracy'],
+            'pp': 15,  # Mock PP data
+            'effect': move_data.get('effect'),
+            'effect_chance': move_data.get('effect_chance', 0),
+            'crit_ratio': move_data.get('crit_ratio', 1),
+            'description': f"A {move_data['category']} {move_data['type']}-type move. " +
+                          (f"Has a {move_data.get('effect_chance', 0)}% chance to cause {move_data.get('effect', 'no effect')}." if move_data.get('effect') else ""),
+            'learners': learners
+        }
+
+    except Exception as e:
+        print(f"Error getting move details: {e}")
+        return None
