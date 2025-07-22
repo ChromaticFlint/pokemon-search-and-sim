@@ -78,6 +78,11 @@ async def security_middleware(request: Request, call_next):
 
     return response
 
+@app.get("/health")
+def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy"}
+
 @app.post("/add_pokemon/")
 def add_pokemon_endpoint(
     id: int,
