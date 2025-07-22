@@ -1,11 +1,14 @@
 {
-  "name": "pokemon-frontend",
+  "name": "pokemon-search-and-sim-frontend",
   "version": "1.0.0",
+  "description": "Frontend for Pokemon Search and Sim - A modern Pokemon search and battle simulation app",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -14,6 +17,29 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",
-    "vite": "^4.4.0"
-  }
+    "vite": "^4.4.0",
+    "eslint": "^8.45.0",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.3"
+  },
+  "keywords": [
+    "pokemon",
+    "search",
+    "battle",
+    "simulation",
+    "vector-database",
+    "react",
+    "fastapi"
+  ],
+  "author": "Pokemon Search and Sim Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/pokemon-search-and-sim.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/pokemon-search-and-sim/issues"
+  },
+  "homepage": "https://github.com/your-username/pokemon-search-and-sim#readme"
 }
