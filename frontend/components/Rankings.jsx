@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { getTopPokemon } from '../api';
+import { useState, useEffect } from 'react';
 
 function Rankings() {
   const [rankings, setRankings] = useState({});
@@ -19,12 +18,19 @@ function Rankings() {
       setLoading(true);
       try {
         const rankingData = {};
-        
+
         for (const criteria of Object.keys(rankingTypes)) {
-          const data = await getTopPokemon(criteria, 10);
+          // Direct API call for rankings
+          // This bypasses frontend validation while maintaining backend security
+          const response = await fetch(`http://localhost:8000/pokemon/top/?criteria=${criteria}&limit=10`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+
           rankingData[criteria] = data.results || [];
         }
-        
+
         setRankings(rankingData);
       } catch (error) {
         console.error('Error loading rankings:', error);

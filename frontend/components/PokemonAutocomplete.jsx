@@ -1,36 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { getAllPokemon } from '../api';
+import { useState, useRef } from 'react';
+import { usePokemonData } from '../contexts/PokemonContext';
 
-function PokemonAutocomplete({ 
-  placeholder = "Enter Pokemon name...", 
-  onSelect, 
-  value = "", 
+function PokemonAutocomplete({
+  placeholder = "Enter Pokemon name...",
+  onSelect,
+  value = "",
   onChange,
-  disabled = false 
+  disabled = false
 }) {
-  const [allPokemon, setAllPokemon] = useState([]);
+  // Use shared Pokemon data from context
+  const { allPokemon, loading } = usePokemonData();
+
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeSuggestion, setActiveSuggestion] = useState(-1);
-  const [loading, setLoading] = useState(true);
   const inputRef = useRef(null);
   const suggestionsRef = useRef(null);
-
-  // Load all Pokemon on component mount
-  useEffect(() => {
-    const loadPokemon = async () => {
-      try {
-        const data = await getAllPokemon(1000);
-        setAllPokemon(data.results || []);
-      } catch (error) {
-        console.error('Error loading Pokemon:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadPokemon();
-  }, []);
 
   // Fuzzy matching function with highlighting
   const fuzzyMatch = (searchTerm, pokemonName) => {
@@ -103,10 +88,19 @@ function PokemonAutocomplete({
   // Handle input change
   const handleInputChange = (e) => {
     const inputValue = e.target.value;
-    onChange && onChange(inputValue);
-    
+
+    // Call onChange immediately for controlled input
+    if (onChange) {
+      onChange(inputValue);
+    }
+
+    // Filter suggestions and show dropdown
     filterSuggestions(inputValue);
-    setShowSuggestions(true);
+    if (inputValue.trim().length > 0) {
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
     setActiveSuggestion(-1);
   };
 
@@ -153,10 +147,11 @@ function PokemonAutocomplete({
 
   // Handle input blur (with delay to allow clicking suggestions)
   const handleBlur = () => {
+    // Longer delay to prevent premature closing when typing quickly
     setTimeout(() => {
       setShowSuggestions(false);
       setActiveSuggestion(-1);
-    }, 150);
+    }, 200);
   };
 
   // Handle input focus

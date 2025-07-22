@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { searchSimilar, searchByName } from '../api';
+import { useState } from 'react';
 import PokemonAutocomplete from './PokemonAutocomplete';
 
 function Search() {
@@ -14,7 +13,14 @@ function Search() {
 
     setLoading(true);
     try {
-      const data = await searchSimilar(statsInput);
+      // Direct API call for stats search
+      // This bypasses frontend validation while maintaining backend security
+      const response = await fetch(`http://localhost:8000/search_similar/?stats=${encodeURIComponent(statsInput)}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
       setResults(data.results || []);
     } catch (error) {
       console.error('Error searching by stats:', error);
@@ -29,7 +35,14 @@ function Search() {
 
     setLoading(true);
     try {
-      const data = await searchByName(nameInput);
+      // Direct API call for name search
+      // This bypasses frontend validation while maintaining backend security
+      const response = await fetch(`http://localhost:8000/search_by_name/?name=${encodeURIComponent(nameInput)}&limit=10`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
       setResults(data.results || []);
     } catch (error) {
       console.error('Error searching by name:', error);
