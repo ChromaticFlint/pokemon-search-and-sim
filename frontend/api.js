@@ -1,7 +1,8 @@
 // src/api.js
 import { InputValidator, APISecurityUtils, clientRateLimit } from './security.js';
 
-const API_BASE = 'http://localhost:8000'; // Adjust as needed
+// Use environment variable for production deployment
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'; // Adjust as needed
 
 // Secure fetch wrapper
 async function secureFetch(url, options = {}) {
