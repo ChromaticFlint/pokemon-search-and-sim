@@ -1,0 +1,44 @@
+# Pokemon Search & Sim - Git Ignore File
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+
+# Frontend build output
+frontend/dist/
+frontend/build/
+frontend/.vite/
+
+# Backend cache
+backend/__pycache__/
+backend/.pytest_cache/
+backend/*.pyc
+backend/*.pyo
+
+# Node modules
+node_modules/
+frontend/node_modules/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Coverage reports
+coverage/
+frontend/coverage/
+
+# Temporary files
+*.tmp
+*.temp
