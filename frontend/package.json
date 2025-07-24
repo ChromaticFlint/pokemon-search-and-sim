@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "start": "vite",
-    "build": "vite build",
-    "vercel-build": "vite build",
+    "build": "npx vite build",
+    "vercel-build": "npx vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest",
