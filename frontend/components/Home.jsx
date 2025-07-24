@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getTopPokemon } from '../api.js';
 import PokemonRadarChart from './PokemonRadarChart';
 
 function Home() {
@@ -10,14 +11,7 @@ function Home() {
   useEffect(() => {
     const loadFeaturedPokemon = async () => {
       try {
-        // Direct API call for featured Pokemon
-        // This bypasses frontend validation while maintaining backend security
-        const response = await fetch('http://localhost:8000/pokemon/top/?criteria=power&limit=6');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-
+        const data = await getTopPokemon('power', 6);
         setFeaturedPokemon(data.results || []);
       } catch (error) {
         console.error('Error loading featured Pokemon:', error);

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { getAllPokemon } from '../api.js';
 
 // Create Pokemon data context
 const PokemonContext = createContext();
@@ -13,13 +14,7 @@ export function PokemonProvider({ children }) {
   useEffect(() => {
     const loadPokemon = async () => {
       try {
-        // Direct API call for Pokemon data
-        const response = await fetch('http://localhost:8000/pokemon/?limit=1000');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        
+        const data = await getAllPokemon(1000);
         setAllPokemon(data.results || []);
         setError(null);
       } catch (err) {
