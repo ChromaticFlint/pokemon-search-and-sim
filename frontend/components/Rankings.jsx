@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getTopPokemon } from '../api.js';
 import PokemonRadarChart from './PokemonRadarChart';
 
 function Rankings() {
@@ -24,14 +25,7 @@ function Rankings() {
         const rankingData = {};
 
         for (const criteria of Object.keys(rankingTypes)) {
-          // Direct API call for rankings
-          // This bypasses frontend validation while maintaining backend security
-          const response = await fetch(`http://localhost:8000/pokemon/top/?criteria=${criteria}&limit=10`);
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const data = await response.json();
-
+          const data = await getTopPokemon(criteria, 10);
           rankingData[criteria] = data.results || [];
         }
 

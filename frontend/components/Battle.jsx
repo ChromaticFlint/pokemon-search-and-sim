@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PokemonAutocomplete from './PokemonAutocomplete';
+import { battleAdvanced, simulateBattle } from '../api.js';
 
 // Move PokemonBattleCard outside the Battle component to prevent re-creation
 const PokemonBattleCard = ({ pokemon, setPokemon, searching, setSearching, label }) => (
@@ -157,14 +158,7 @@ function Battle() {
 
       setLoading(true);
       try {
-        // Direct API call for enhanced battle with levels
-        const levelA = pokemonA.level && !isNaN(pokemonA.level) ? pokemonA.level : 50;
-        const levelB = pokemonB.level && !isNaN(pokemonB.level) ? pokemonB.level : 50;
-        const response = await fetch(`http://localhost:8000/battle_advanced/?pokemon_a_name=${encodeURIComponent(pokemonA.data.name)}&pokemon_b_name=${encodeURIComponent(pokemonB.data.name)}&level_a=${levelA}&level_b=${levelB}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
+        const data = await battleAdvanced(pokemonA.data.name, pokemonB.data.name);
 
         if (data.error) {
           alert(data.error);
@@ -191,12 +185,7 @@ function Battle() {
 
       setLoading(true);
       try {
-        // Direct API call for simple battle
-        const response = await fetch(`http://localhost:8000/simulate_battle/?stats_a=${encodeURIComponent(pokemonA.stats)}&stats_b=${encodeURIComponent(pokemonB.stats)}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
+        const data = await simulateBattle(pokemonA.stats, pokemonB.stats);
 
         // Replace "Pokemon A" and "Pokemon B" with actual names or stats description
         let result = data.result;
