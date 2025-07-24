@@ -52,7 +52,11 @@ app = FastAPI(
 # Add CORS middleware with restricted origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Specific frontend URLs only
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://pokemon-experiment.netlify.app"
+    ],  # Allow localhost for development and Netlify for production
     allow_credentials=False,  # Disable credentials for security
     allow_methods=["GET", "POST"],  # Only allow necessary methods
     allow_headers=["Content-Type", "Accept", "X-API-Key", "X-Requested-With"],  # Include all required headers
