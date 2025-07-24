@@ -79,8 +79,8 @@ export async function battleAdvanced(pokemonAName, pokemonBName) {
 }
 
 export async function searchMoves(query, limit = 20) {
-  // Validate inputs
-  const validatedQuery = InputValidator.validateSearchQuery(query);
+  // Validate inputs (use Pokemon name validation for move queries)
+  const validatedQuery = InputValidator.validatePokemonName(query);
   const validatedLimit = InputValidator.validateLimit(limit);
 
   // Make secure request
