@@ -77,3 +77,20 @@ export async function battleAdvanced(pokemonAName, pokemonBName) {
   // Make secure request
   return await secureFetch(`${API_BASE}/battle_advanced/?pokemon_a_name=${encodeURIComponent(validatedNameA)}&pokemon_b_name=${encodeURIComponent(validatedNameB)}`);
 }
+
+export async function searchMoves(query, limit = 20) {
+  // Validate inputs
+  const validatedQuery = InputValidator.validateSearchQuery(query);
+  const validatedLimit = InputValidator.validateLimit(limit);
+
+  // Make secure request
+  return await secureFetch(`${API_BASE}/search_moves/?query=${encodeURIComponent(validatedQuery)}&limit=${validatedLimit}`);
+}
+
+export async function getMoveDetails(moveName) {
+  // Validate input
+  const validatedName = InputValidator.validatePokemonName(moveName); // Reuse Pokemon name validation for move names
+
+  // Make secure request
+  return await secureFetch(`${API_BASE}/move_details/?name=${encodeURIComponent(validatedName)}`);
+}

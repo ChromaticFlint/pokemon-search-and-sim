@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { searchMoves, getMoveDetails as fetchMoveDetails } from '../api.js';
 
 function Skills() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,12 +30,7 @@ function Skills() {
 
     setLoading(true);
     try {
-      // Search for moves using the vector database
-      const response = await fetch(`http://localhost:8000/search_moves/?query=${encodeURIComponent(query)}&limit=20`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await searchMoves(query, 20);
       setSearchResults(data.results || []);
     } catch (error) {
       console.error('Error searching moves:', error);
@@ -56,11 +52,7 @@ function Skills() {
 
   const getMoveDetails = async (moveName) => {
     try {
-      const response = await fetch(`http://localhost:8000/move_details/?name=${encodeURIComponent(moveName)}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await fetchMoveDetails(moveName);
       setMoveDetails(data);
     } catch (error) {
       console.error('Error getting move details:', error);
