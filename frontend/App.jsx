@@ -5,7 +5,7 @@ import { PokemonProvider } from './contexts/PokemonContext.jsx';
 import Home from './components/Home.jsx';
 import Search from './components/Search.jsx';
 import Battle from './components/Battle.jsx';
-import Skills from './components/Skills';
+import Skills from './components/Skills.jsx';
 import Rankings from './components/Rankings.jsx';
 import './styles.css';
 
