@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { searchMoves, getMoveDetails as fetchMoveDetails } from '../api.js';
+import { searchMoves as fetchMoves, getMoveDetails as fetchMoveDetails } from '../api.js';
 
 function Skills() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,7 +30,7 @@ function Skills() {
 
     setLoading(true);
     try {
-      const data = await searchMoves(query, 20);
+      const data = await fetchMoves(query, 20);
       setSearchResults(data.results || []);
     } catch (error) {
       console.error('Error searching moves:', error);
